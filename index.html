@@ -3,130 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Video Saver Mobile</title>
+    <title>Mobile Downloader</title>
     <style>
-        /* --- MOBILE STYLING --- */
-        :root { --bg: #0f172a; --card: #1e293b; --primary: #3b82f6; --text: #f8fafc; }
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap');
+
+        /* --- MOBILE OPTIMIZED STYLES --- */
         body {
-            margin: 0; padding: 20px; font-family: sans-serif;
-            background-color: var(--bg); color: var(--text);
-            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Outfit', sans-serif;
+            background: #0f172a;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
-        .container {
-            width: 100%; max-width: 400px; background: var(--card);
-            padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+
+        .mobile-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 24px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
+            text-align: center;
         }
-        h1 { text-align: center; margin-top: 0; color: #60a5fa; }
-        
-        /* INPUTS */
+
+        h1 {
+            font-size: 1.8rem;
+            margin: 0 0 5px 0;
+            background: linear-gradient(to right, #4ade80, #22d3ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p { color: #94a3b8; font-size: 0.9rem; margin-bottom: 25px; }
+
         input {
-            width: 100%; box-sizing: border-box; padding: 15px; margin-bottom: 15px;
-            background: #334155; border: 2px solid #475569; border-radius: 12px;
-            color: white; font-size: 16px; outline: none;
+            width: 100%;
+            box-sizing: border-box;
+            background: #334155;
+            border: 2px solid #475569;
+            color: white;
+            padding: 16px;
+            border-radius: 16px;
+            font-size: 16px;
+            outline: none;
+            margin-bottom: 15px;
         }
-        input:focus { border-color: var(--primary); }
 
-        /* BUTTONS */
-        button {
-            width: 100%; padding: 16px; border: none; border-radius: 12px;
-            background: linear-gradient(to right, #2563eb, #3b82f6);
-            color: white; font-size: 18px; font-weight: bold; cursor: pointer;
+        .btn-main {
+            width: 100%;
+            background: linear-gradient(135deg, #22d3ee, #0ea5e9);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
         }
-        button:active { transform: scale(0.98); }
-        button:disabled { opacity: 0.6; }
+        .btn-main:disabled { opacity: 0.5; }
 
-        /* RESULTS */
-        #result { display: none; margin-top: 25px; animation: popUp 0.3s ease; }
-        img { width: 100%; border-radius: 10px; margin-bottom: 15px; }
+        /* Results Area */
+        #result-area {
+            display: none;
+            margin-top: 30px;
+            background: #1e293b;
+            border-radius: 16px;
+            overflow: hidden;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        #thumb { width: 100%; height: 200px; object-fit: cover; }
+
+        .info-box { padding: 20px; text-align: left; }
+        .info-box h3 { margin: 0 0 10px 0; font-size: 1rem; }
+        .meta { font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 10px;}
+
         select {
-            width: 100%; padding: 12px; background: #0f172a; color: white;
-            border: 1px solid #475569; border-radius: 8px; font-size: 16px; margin-bottom: 15px;
+            width: 100%;
+            padding: 14px;
+            background: #0f172a;
+            color: white;
+            border: 1px solid #475569;
+            border-radius: 12px;
+            font-size: 1rem;
+            margin-bottom: 15px;
         }
-        .dl-btn {
-            display: block; width: 100%; text-align: center; padding: 15px;
-            background: #22c55e; color: white; text-decoration: none;
-            border-radius: 12px; font-weight: bold; font-size: 18px;
+
+        .btn-download {
+            display: block;
+            width: 100%;
+            text-align: center;
+            background: #22c55e;
+            color: white;
+            text-decoration: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 700;
             box-sizing: border-box;
         }
-        .error { color: #ef4444; text-align: center; margin-top: 15px; display: none; }
-        @keyframes popUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .error { color: #f87171; font-size: 0.9rem; margin-top: 15px; display: none; }
+        
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>📲 Media Saver</h1>
-    
-    <input type="text" id="url" placeholder="Paste Link Here...">
-    <button id="btn" onclick="getVideo()">Get Video</button>
-    <p class="error" id="error"></p>
+    <div class="mobile-card">
+        <h1>⬇️ Downloader</h1>
+        <p>Save video from social media</p>
 
-    <div id="result">
-        <img id="thumb" src="">
-        <h3 id="title" style="font-size: 16px; margin: 0 0 10px 0;"></h3>
+        <input type="text" id="urlInput" placeholder="Paste link..." autocomplete="off">
         
-        <label style="font-size: 14px; color: #94a3b8;">Select Quality:</label>
-        <select id="quality" onchange="updateLink()"></select>
+        <button id="searchBtn" class="btn-main">Find Video</button>
 
-        <a id="download" href="#" class="dl-btn" target="_blank">Download MP4 ⬇️</a>
-    </div>
-</div>
+        <div id="errorMsg" class="error"></div>
 
-<script>
-    // ⚠️ REPLACE THIS WITH YOUR CLOUDFLARE LINK
-    const API = "https://music-surprised-packets-membership.trycloudflare.com/api/download";
-
-    async function getVideo() {
-        const url = document.getElementById('url').value;
-        const btn = document.getElementById('btn');
-        const err = document.getElementById('error');
-        const resDiv = document.getElementById('result');
-
-        if (!url) return;
-        
-        btn.innerText = "Searching...";
-        btn.disabled = true;
-        err.style.display = 'none';
-        resDiv.style.display = 'none';
-
-        try {
-            const req = await fetch(`${API}?url=${encodeURIComponent(url)}`);
-            const data = await req.json();
-
-            if (data.success) {
-                document.getElementById('thumb').src = data.thumbnail;
-                document.getElementById('title').innerText = data.title;
-
-                // Fill Dropdown with Qualities
-                const select = document.getElementById('quality');
-                select.innerHTML = "";
+        <div id="result-area">
+            <img id="thumb" src="" alt="Thumbnail">
+            <div class="info-box">
+                <h3 id="vidTitle">Loading...</h3>
+                <span id="meta" class="meta"></span>
                 
-                data.downloads.forEach(d => {
-                    let opt = document.createElement('option');
-                    opt.value = d.url;
-                    opt.innerText = d.label + " (" + (d.filesize ? (d.filesize/1024/1024).toFixed(1) + "MB" : "unk") + ")";
-                    select.appendChild(opt);
-                });
+                <label style="font-size: 0.85rem; color: #cbd5e1;">Select Quality:</label>
+                <select id="qualitySelect"></select>
 
-                updateLink(); // Set initial download link
-                resDiv.style.display = 'block';
-            } else {
-                err.innerText = data.error || "Video not found";
-                err.style.display = 'block';
+                <a id="downloadLink" href="#" target="_blank" class="btn-download">Download MP4</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ✅ YOUR NEW LINK IS ALREADY ADDED HERE:
+        const API_URL = "https://garage-miles-menus-legendary.trycloudflare.com/api/download";
+
+        const input = document.getElementById('urlInput');
+        const btn = document.getElementById('searchBtn');
+        const qualitySelect = document.getElementById('qualitySelect');
+        const downloadLink = document.getElementById('downloadLink');
+
+        btn.addEventListener('click', async () => {
+            const url = input.value.trim();
+            if (!url) return;
+
+            // Reset UI
+            btn.textContent = "Searching...";
+            btn.disabled = true;
+            document.getElementById('errorMsg').style.display = 'none';
+            document.getElementById('result-area').style.display = 'none';
+
+            try {
+                const res = await fetch(`${API_URL}?url=${encodeURIComponent(url)}`);
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById('thumb').src = data.thumbnail;
+                    document.getElementById('vidTitle').textContent = data.title;
+                    document.getElementById('meta').textContent = `${data.source} • ${data.duration}`;
+                    
+                    // Clear and Fill Dropdown
+                    qualitySelect.innerHTML = "";
+                    data.downloads.forEach((item) => {
+                        const option = document.createElement("option");
+                        option.value = item.url;
+                        option.textContent = item.label; // e.g., "720p (mp4)"
+                        qualitySelect.appendChild(option);
+                    });
+
+                    // Set initial download link
+                    if(data.downloads.length > 0) {
+                        downloadLink.href = data.downloads[0].url;
+                    }
+
+                    document.getElementById('result-area').style.display = 'block';
+                } else {
+                    showError(data.error);
+                }
+            } catch (e) {
+                showError("Server Error. Is the terminal running?");
             }
-        } catch (e) {
-            err.innerText = "Server Error. Check Terminal.";
-            err.style.display = 'block';
+
+            btn.textContent = "Find Video";
+            btn.disabled = false;
+        });
+
+        qualitySelect.addEventListener('change', () => {
+            downloadLink.href = qualitySelect.value;
+        });
+
+        function showError(msg) {
+            const errDiv = document.getElementById('errorMsg');
+            errDiv.textContent = msg || "Failed to fetch";
+            errDiv.style.display = 'block';
         }
-
-        btn.innerText = "Get Video";
-        btn.disabled = false;
-    }
-
-    function updateLink() {
-        document.getElementById('download').href = document.getElementById('quality').value;
-    }
-</script>
-
+    </script>
 </body>
 </html>
+
