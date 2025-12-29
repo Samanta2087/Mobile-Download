@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Video Saver Mobile</title>
+    <style>
+        /* --- MOBILE STYLING --- */
+        :root { --bg: #0f172a; --card: #1e293b; --primary: #3b82f6; --text: #f8fafc; }
+        body {
+            margin: 0; padding: 20px; font-family: sans-serif;
+            background-color: var(--bg); color: var(--text);
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+        }
+        .container {
+            width: 100%; max-width: 400px; background: var(--card);
+            padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        h1 { text-align: center; margin-top: 0; color: #60a5fa; }
+        
+        /* INPUTS */
+        input {
+            width: 100%; box-sizing: border-box; padding: 15px; margin-bottom: 15px;
+            background: #334155; border: 2px solid #475569; border-radius: 12px;
+            color: white; font-size: 16px; outline: none;
+        }
+        input:focus { border-color: var(--primary); }
+
+        /* BUTTONS */
+        button {
+            width: 100%; padding: 16px; border: none; border-radius: 12px;
+            background: linear-gradient(to right, #2563eb, #3b82f6);
+            color: white; font-size: 18px; font-weight: bold; cursor: pointer;
+        }
+        button:active { transform: scale(0.98); }
+        button:disabled { opacity: 0.6; }
+
+        /* RESULTS */
+        #result { display: none; margin-top: 25px; animation: popUp 0.3s ease; }
+        img { width: 100%; border-radius: 10px; margin-bottom: 15px; }
+        select {
+            width: 100%; padding: 12px; background: #0f172a; color: white;
+            border: 1px solid #475569; border-radius: 8px; font-size: 16px; margin-bottom: 15px;
+        }
+        .dl-btn {
+            display: block; width: 100%; text-align: center; padding: 15px;
+            background: #22c55e; color: white; text-decoration: none;
+            border-radius: 12px; font-weight: bold; font-size: 18px;
+            box-sizing: border-box;
+        }
+        .error { color: #ef4444; text-align: center; margin-top: 15px; display: none; }
+        @keyframes popUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📲 Media Saver</h1>
+    
+    <input type="text" id="url" placeholder="Paste Link Here...">
+    <button id="btn" onclick="getVideo()">Get Video</button>
+    <p class="error" id="error"></p>
+
+    <div id="result">
+        <img id="thumb" src="">
+        <h3 id="title" style="font-size: 16px; margin: 0 0 10px 0;"></h3>
+        
+        <label style="font-size: 14px; color: #94a3b8;">Select Quality:</label>
+        <select id="quality" onchange="updateLink()"></select>
+
+        <a id="download" href="#" class="dl-btn" target="_blank">Download MP4 ⬇️</a>
+    </div>
+</div>
+
+<script>
+    // ⚠️ REPLACE THIS WITH YOUR CLOUDFLARE LINK
+    const API = "https://music-surprised-packets-membership.trycloudflare.com/api/download";
+
+    async function getVideo() {
+        const url = document.getElementById('url').value;
+        const btn = document.getElementById('btn');
+        const err = document.getElementById('error');
+        const resDiv = document.getElementById('result');
+
+        if (!url) return;
+        
+        btn.innerText = "Searching...";
+        btn.disabled = true;
+        err.style.display = 'none';
+        resDiv.style.display = 'none';
+
+        try {
+            const req = await fetch(`${API}?url=${encodeURIComponent(url)}`);
+            const data = await req.json();
+
+            if (data.success) {
+                document.getElementById('thumb').src = data.thumbnail;
+                document.getElementById('title').innerText = data.title;
+
+                // Fill Dropdown with Qualities
+                const select = document.getElementById('quality');
+                select.innerHTML = "";
+                
+                data.downloads.forEach(d => {
+                    let opt = document.createElement('option');
+                    opt.value = d.url;
+                    opt.innerText = d.label + " (" + (d.filesize ? (d.filesize/1024/1024).toFixed(1) + "MB" : "unk") + ")";
+                    select.appendChild(opt);
+                });
+
+                updateLink(); // Set initial download link
+                resDiv.style.display = 'block';
+            } else {
+                err.innerText = data.error || "Video not found";
+                err.style.display = 'block';
+            }
+        } catch (e) {
+            err.innerText = "Server Error. Check Terminal.";
+            err.style.display = 'block';
+        }
+
+        btn.innerText = "Get Video";
+        btn.disabled = false;
+    }
+
+    function updateLink() {
+        document.getElementById('download').href = document.getElementById('quality').value;
+    }
+</script>
+
+</body>
+</html>
